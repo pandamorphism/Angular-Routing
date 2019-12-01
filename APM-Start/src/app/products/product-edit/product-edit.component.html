@@ -21,7 +21,7 @@
                  [(ngModel)]=product.productName
                  name="productName"
                  #productNameVar="ngModel"
-                 [ngClass]="{'is-invalid': (productNameVar.touched || productNameVar.dirty) && !productNameVar.valid }" />
+                 [ngClass]="{'is-invalid': (productNameVar.touched || productNameVar.dirty) && !productNameVar.valid }"/>
           <span class="invalid-feedback">
             <span *ngIf="productNameVar.errors?.required">
               Product name is required.
@@ -45,7 +45,7 @@
                  [(ngModel)]=product.productCode
                  name="productCode"
                  #productCodeVar="ngModel"
-                 [ngClass]="{'is-invalid': (productCodeVar.touched || productCodeVar.dirty) && !productCodeVar.valid }" />
+                 [ngClass]="{'is-invalid': (productCodeVar.touched || productCodeVar.dirty) && !productCodeVar.valid }"/>
           <span class="invalid-feedback">
             <span *ngIf="productCodeVar.errors?.required">
               Product code is required.
@@ -77,7 +77,8 @@
                   (click)="saveProduct()">
             Save
           </button>
-          <button class="btn btn-outline-secondary mr-3"
+          <button routerLink="/products/{{product.id}}"
+                  class="btn btn-outline-secondary mr-3"
                   style="width:80px"
                   type="button"
                   title="Cancel your edits">

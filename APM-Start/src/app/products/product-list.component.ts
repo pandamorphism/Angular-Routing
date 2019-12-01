@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 
-import { Product } from './product';
-import { ProductService } from './product.service';
+import {Product} from './product';
+import {ProductService} from './product.service';
+import {ActivatedRoute} from '@angular/router';
 
 @Component({
   templateUrl: './product-list.component.html',
@@ -13,22 +14,27 @@ export class ProductListComponent implements OnInit {
   imageMargin = 2;
   showImage = false;
   errorMessage = '';
+  filteredProducts: Product[] = [];
+  products: Product[] = [];
+
+  constructor(private productService: ProductService,
+              private route: ActivatedRoute) {
+  }
 
   _listFilter = '';
+
   get listFilter(): string {
     return this._listFilter;
   }
+
   set listFilter(value: string) {
     this._listFilter = value;
     this.filteredProducts = this.listFilter ? this.performFilter(this.listFilter) : this.products;
   }
 
-  filteredProducts: Product[] = [];
-  products: Product[] = [];
-
-  constructor(private productService: ProductService) { }
-
   ngOnInit(): void {
+    this.listFilter = this.route.snapshot.queryParamMap.get('filterBy') || '';
+    this.showImage = this.route.snapshot.queryParamMap.get('showImage') === 'true'  || false;
     this.productService.getProducts().subscribe({
       next: products => {
         this.products = products;

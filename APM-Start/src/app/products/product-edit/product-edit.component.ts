@@ -1,28 +1,47 @@
-import { Component } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 
-import { MessageService } from '../../messages/message.service';
+import {MessageService} from '../../messages/message.service';
 
-import { Product } from '../product';
-import { ProductService } from '../product.service';
+import {Product} from '../product';
+import {ProductService} from '../product.service';
+import {ActivatedRoute, Router} from '@angular/router';
+import {map, pluck, switchMap, tap} from 'rxjs/operators';
+import {untilDestroyed} from 'ngx-take-until-destroy';
+import {Observable} from 'rxjs';
+
+export const asNumber: (x: string) => number = x => +x;
 
 @Component({
   templateUrl: './product-edit.component.html',
   styleUrls: ['./product-edit.component.css']
 })
-export class ProductEditComponent {
+export class ProductEditComponent implements OnInit, OnDestroy {
   pageTitle = 'Product Edit';
   errorMessage: string;
 
   product: Product;
 
   constructor(private productService: ProductService,
-              private messageService: MessageService) { }
+              private messageService: MessageService,
+              private route: ActivatedRoute,
+              private router: Router) {
+  }
 
-  getProduct(id: number): void {
-    this.productService.getProduct(id).subscribe({
+  ngOnInit(): void {
+    this.route.paramMap.pipe(
+      pluck('params', 'id'),
+      map(asNumber),
+      switchMap(this.getProduct.bind(this)),
+      untilDestroyed(this)
+    )
+      .subscribe();
+  }
+
+  getProduct(id: number): Observable<Product> {
+    return this.productService.getProduct(id).pipe(tap({
       next: product => this.onProductRetrieved(product),
       error: err => this.errorMessage = err
-    });
+    }));
   }
 
   onProductRetrieved(product: Product): void {
@@ -75,7 +94,9 @@ export class ProductEditComponent {
     if (message) {
       this.messageService.addMessage(message);
     }
+    this.router.navigate(['/products']);
+  }
 
-    // Navigate back to the product list
+  ngOnDestroy(): void {
   }
 }
